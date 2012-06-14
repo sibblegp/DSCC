@@ -68,6 +68,10 @@ class ConferenceInitiator(DeclarativeBase):
     name = Column(VARCHAR(length=100), nullable=False)
     number = Column(VARCHAR(length=20), nullable=False)
 
+    def save(self):
+        core_add(self)
+        core_commit()
+
 class ConferenceMember(DeclarativeBase):
     __tablename__ = 'conference_member'
     
@@ -85,8 +89,9 @@ class ConferenceCall(DeclarativeBase):
     #Columns
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     tropo_conference_id = Column(Integer, nullable=False)
-    start_time = Column(DateTime, nullable=False)
+    start_time = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
     end_time = Column(DateTime)
+    updated = Column(DateTime, default=datetime.datetime.utcnow())
     dial_in_number = Column(VARCHAR(length=20), nullable=False)
 
     #Foreign Keys
@@ -96,6 +101,18 @@ class ConferenceCall(DeclarativeBase):
     initiator = relationship('ConferenceInitiator', backref='conference_call')
     members = relationship('ConferenceMember', backref='conference_call')
     sessions = relationship('TropoSession', backref='conference_call')
+
+    @classmethod
+    def check_id_available(cls, tropo_id):
+        active_conferences_on_id = core_read(cls).filter_by(tropo_conference_id=tropo_id).filter_by(end_time=None).count()
+        if active_conferences_on_id == 0:
+            return True
+        else:
+            return False
+
+    def save(self):
+        core_add(self)
+        core_commit()
 
 def initialize_sql():
     print "Dropping metadata..."

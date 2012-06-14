@@ -5,9 +5,9 @@ from tropo import Tropo
 from tropo import Result as TropoResult
 from tropo import Session as TropoSession
 
-
 import datetime
 import json
+import random
 
 import models
 
@@ -25,12 +25,99 @@ def setup_tropo():
 
     return tropo_core
 
+def error(error):
+    return jsonify({'error':error})
+
 #
-#  Web URLs
+#  API Calls
 #
 
-@APP.route('/wc', methods=['POST'])
+@APP.route('/dscc/api/setup_call', methods=['POST'])
+def setup_conference():
+
+    APP.logger.debug('Received Conference Request...')
+
+    if request.method == 'POST':
+        try:
+            initiator_number = request.json['initiator']['number']
+            initiator_name = request.json['initiator']['name']
+            members = request.json['members']
+        except KeyError:
+            return error('Invalid JSON elements.')
+
+        #Record Initiator
+        APP.logger.debug('Creating Initiator Record...')
+        new_initiator = models.ConferenceInitiator(name=initiator_name, number=initiator_number)
+        new_initiator.save()
+
+        #Create Conference Call
+        APP.logger.debug('Creating New Call Record...')
+        tropo_conference_id = 0
+        clashing_conference_id = False
+        while clashing_conference_id == False:
+            tropo_conference_id = random.randint(1, 128)
+            clashing_conference_id = models.ConferenceCall.check_id_available(tropo_conference_id)
+
+        dial_in_number = '16504161924'
+        new_call = models.ConferenceCall(tropo_conference_id=tropo_conference_id, dial_in_number = dial_in_number, initiator=new_initiator)
+        new_call.save()
+
+        response = dict()
+        response['dial_in'] = dial_in_number
+        response['conference_id'] = tropo_conference_id
+
+        return jsonify(response)
+    else:
+        return error('GET NOT PUSH!!  DUMBASS.')
+
+
+#
+#  Tropo Web URLs
+#
+
+@APP.route('/dscc', methods=['POST'])
 def handle_incoming_call():
+    tropo_core = setup_tropo()
+    tropo_request = TropoSession(request.data)
+
+    session_data = dict()
+
+    session_data['id'] = tropo_request.id
+    session_data['callid'] = tropo_request.callId
+    session_data['from'] = tropo_request.fromaddress['id']
+    session_data['to'] = tropo_request.to['id']
+
+    tropo_core.say('Welcome to Dead Simple Conference Calling.')
+    tropo_core.on(event='continue', next=url_for('connect_conference'))
+    response = tropo_core.RenderJson(pretty=True)
+
+    session = models.TropoSession(tropo_session_id=tropo_request.id)
+    session.tropo_call_id = tropo_request.callId
+    session.from_number = tropo_request.fromaddress['id']
+
+    session.incoming_number = models.IncomingNumber.retrieve_number_with_number('1' + tropo_request.to['id'])
+
+    session.save()
+
+    return response
+
+@APP.route('/dscc/conference', methods=['POST'])
+def connect_conference():
+    pass
+
+@APP.route('/dscc/error', methods=['POST'])
+def handle_error():
+    tropo_core = setup_tropo()
+
+    tropo_core.say('Sorry, we have encountered an error.')
+    tropo_core.hangup()
+
+    response = tropo_core.RenderJson(pretty=True)
+
+    return response
+
+@APP.route('/dscc/hangup', methods=['POST'])
+def handle_hangup():
     pass
 
 if __name__ == '__main__':
