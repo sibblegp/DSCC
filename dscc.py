@@ -58,7 +58,7 @@ def setup_conference():
             tropo_conference_id = random.randint(1, 128)
             clashing_conference_id = models.ConferenceCall.check_id_available(tropo_conference_id)
 
-        dial_in_number = '16504161924'
+        dial_in_number = '6504161940'
         new_call = models.ConferenceCall(tropo_conference_id=tropo_conference_id, dial_in_number = dial_in_number, initiator=new_initiator)
         new_call.save()
 

@@ -52,6 +52,7 @@ class TropoSession(DeclarativeBase):
     ended = Column(DateTime)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
     initiator_session = Column(Boolean, nullable=False, default=False)
+    from_number = Column(VARCHAR(length=20))
     #Foreign Keys
     conference_call_id = Column(Integer, ForeignKey('conference_calls.id'), nullable=True)
 
