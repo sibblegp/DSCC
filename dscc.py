@@ -95,15 +95,29 @@ def handle_incoming_call():
     session.tropo_call_id = tropo_request.callId
     session.from_number = tropo_request.fromaddress['id']
 
-    session.incoming_number = models.IncomingNumber.retrieve_number_with_number('1' + tropo_request.to['id'])
-
+    session.incoming_number = models.IncomingNumber.retrieve_number_with_number(tropo_request.to['id'])
+    session.initiator_session = True
     session.save()
 
     return response
 
 @APP.route('/dscc/conference', methods=['POST'])
 def connect_conference():
-    pass
+    tropo_core = setup_tropo()
+    result = TropoResult(request.data)
+    session = models.TropoSession.get_session_with_tropo_id(result._sessionId)
+
+    conference = models.ConferenceCall.get_current_call_for_number(session.from_number)
+
+    if conference:
+        tropo_core.say("PLease wait while we connect your other parties.")
+        #Initiate Calls and send their redirects to appropriate handler
+    else:
+        tropo_core.say("We're sorry, but we cannot find an active conference call for your number.  Goodbye.")
+        tropo_core.hangup()
+
+    response = tropo_core.RenderJson(pretty=True)
+    return response
 
 @APP.route('/dscc/error', methods=['POST'])
 def handle_error():

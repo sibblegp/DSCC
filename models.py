@@ -51,7 +51,7 @@ class TropoSession(DeclarativeBase):
     started = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
     ended = Column(DateTime)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
-
+    initiator_session = Column(Boolean, nullable=False, default=False)
     #Foreign Keys
     conference_call_id = Column(Integer, ForeignKey('conference_calls.id'), nullable=True)
 
@@ -59,6 +59,10 @@ class TropoSession(DeclarativeBase):
         self.updated = datetime.datetime.utcnow()
         core_add(self)
         core_commit()
+
+    @classmethod
+    def get_session_with_tropo_id(cls, tropo_session_id):
+        return core_read(cls).filter(cls.tropo_session_id==tropo_session_id).first()
 
 class ConferenceInitiator(DeclarativeBase):
     __tablename__ = 'conference_initiator'
@@ -113,6 +117,10 @@ class ConferenceCall(DeclarativeBase):
     def save(self):
         core_add(self)
         core_commit()
+
+    @classmethod
+    def get_current_call_for_number(cls, number):
+        return core_read(cls).Join(ConferenceInitiator).filter(cls.end_time==None).filter(ConferenceInitiator.number==number).first()
 
 def initialize_sql():
     print "Dropping metadata..."
