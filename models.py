@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, relationship, backref, sessionmaker
 
-import settings_debug as settings
+import settings
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
@@ -99,7 +99,7 @@ class ConferenceCall(DeclarativeBase):
 
 def initialize_sql():
     print "Dropping metadata..."
-    DSCC_SQL_METADATA.drop_all(WC_SQL_ENGINE)
+    DSCC_SQL_METADATA.drop_all(DSCC_SQL_ENGINE)
 
     print "Creating metadata..."
-    DSCC_SQL_METADATA.create_all(WC_SQL_ENGINE)
+    DSCC_SQL_METADATA.create_all(DSCC_SQL_ENGINE)
