@@ -121,7 +121,7 @@ class ConferenceCall(DeclarativeBase):
 
     @classmethod
     def get_current_call_for_number(cls, number):
-        return core_read(cls).Join(ConferenceInitiator).filter(cls.end_time==None).filter(ConferenceInitiator.number==number).first()
+        return core_read(cls).join(ConferenceInitiator).filter(cls.end_time==None).filter(ConferenceInitiator.number==number).first()
 
 def initialize_sql():
     print "Dropping metadata..."
