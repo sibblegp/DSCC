@@ -87,6 +87,9 @@ def handle_incoming_initiator_call():
 
     session_data = dict()
 
+    APP.logger.debug('Incoming call....')
+    APP.logger.debug('Call Data: ' + str(tropo_request))
+
     session_data['id'] = tropo_request.id
     session_data['callid'] = tropo_request.callId
     session_data['from'] = tropo_request.fromaddress['id']
