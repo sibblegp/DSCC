@@ -161,7 +161,7 @@ def connect_conference():
             pass
 
         tropo_core.on(event='answer', next=url_for('handle_member'))
-        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True)
+        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True, required=True)
     else:
         tropo_core.say("We're sorry, but we cannot find an active conference call for your number.  Goodbye.")
         tropo_core.hangup()
