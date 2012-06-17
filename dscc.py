@@ -110,9 +110,8 @@ def handle_incoming_initiator_call():
         #session_data['from'] = tropo_request.fromaddress['id']
         #session_data['to'] = tropo_request.to['id']
 
-    tropo_core.say('Welcome to Dead Simple Conference Calling.')
-
     if initiator_call:
+        tropo_core.say('Welcome to Dead Simple Conference Calling.')
         tropo_core.on(event='continue', next=url_for('connect_conference'))
         session = models.TropoSession(tropo_session_id=tropo_request.id)
         session.tropo_call_id = tropo_request.callId
