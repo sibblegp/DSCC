@@ -40,7 +40,7 @@ def setup_conference():
 
     APP.logger.debug('Received Incoming Call Request...')
 
-    APP.logger.debug('%%%%%%%\n' + str(request.json) + '\n%%%%%%%')
+    #APP.logger.debug('%%%%%%%\n' + str(request.json) + '\n%%%%%%%')
 
     if request.method == 'POST':
         try:
