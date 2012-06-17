@@ -123,6 +123,17 @@ def handle_incoming_initiator_call():
         tropo_core.on(event='continue', next=url_for('call_member'))
         session = models.TropoSession(tropo_session_id=tropo_request.id)
         session.member_number = tropo_request.parameters['member_number']
+        session.save()
+
+        conference = models.ConferenceCall.get_current_call_for_member(session.member_number)
+
+        if conference:
+            session.conference_call = conference
+            session.save()
+            tropo_core.call(to=session.member_number, allowSignals=True, _from=conference.initiator.number, timeout=90)
+            tropo_core.on(event="answer", next=url_for('member_answered'))
+        else:
+            APP.logger.debug('No active conference found for member: ' + session.member_number)
 
 
     response = tropo_core.RenderJson(pretty=True)
