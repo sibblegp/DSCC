@@ -64,7 +64,7 @@ def setup_conference():
             tropo_conference_id = random.randint(1, 128)
             clashing_conference_id = models.ConferenceCall.check_id_available(tropo_conference_id)
 
-        dial_in_number = '+16504161940'
+        dial_in_number = '+14153266627'
         new_call = models.ConferenceCall(tropo_conference_id=tropo_conference_id, dial_in_number=dial_in_number, initiator=new_initiator)
         new_call.save()
 
@@ -116,12 +116,12 @@ def handle_incoming_initiator_call():
         tropo_core.on(event='continue', next=url_for('connect_conference'))
         session = models.TropoSession(tropo_session_id=tropo_request.id)
         session.tropo_call_id = tropo_request.callId
-        session.member_number = tropo_request.fromaddress['id']
+        session.member_number = '+1' + tropo_request.fromaddress['id']
         #session.incoming_number = tropo_request.to['id']
         session.initiator_session = True
     else:
         session = models.TropoSession(tropo_session_id=tropo_request.id)
-        session.member_number = tropo_request.parameters['member_number']
+        session.member_number = '+1' + tropo_request.parameters['member_number']
         session.save()
 
         conference = models.ConferenceCall.get_current_call_for_member(session.member_number)
