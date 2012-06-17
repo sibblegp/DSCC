@@ -112,7 +112,7 @@ def handle_incoming_initiator_call():
         #session_data['to'] = tropo_request.to['id']
 
     if initiator_call:
-        tropo_core.say('Welcome to Dead Simple Conference Calling.')
+        tropo_core.say('Hello and welcome to a Simple Conference Call.')
         tropo_core.on(event='continue', next=url_for('connect_conference'))
         session = models.TropoSession(tropo_session_id=tropo_request.id)
         session.tropo_call_id = tropo_request.callId
@@ -213,7 +213,7 @@ def member_question():
 
     if selection == 1:
         tropo_core.say("Please wait while we join you to the conference")
-        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True)
+        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True, required=True)
         tropo_core.on(event='continue', next=url_for('member_joined'))
     elif selection == 2:
         tropo_core.say("Thank you.  Goodbye.")
