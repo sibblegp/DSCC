@@ -35,7 +35,9 @@ def error(error):
 @APP.route('/dscc/api/setup_call', methods=['POST'])
 def setup_conference():
 
-    APP.logger.debug('Received Conference Request...')
+    APP.logger.debug('Received Incoming Call Request...')
+
+    APP.logger.debug('%%%%%%%\n' + str(request.json) + '\n%%%%%%%')
 
     if request.method == 'POST':
         try:
@@ -58,11 +60,12 @@ def setup_conference():
             tropo_conference_id = random.randint(1, 128)
             clashing_conference_id = models.ConferenceCall.check_id_available(tropo_conference_id)
 
-        dial_in_number = '6504161940'
-        new_call = models.ConferenceCall(tropo_conference_id=tropo_conference_id, dial_in_number = dial_in_number, initiator=new_initiator)
+        dial_in_number = '+16504161940'
+        new_call = models.ConferenceCall(tropo_conference_id=tropo_conference_id, dial_in_number=dial_in_number, initiator=new_initiator)
         new_call.save()
 
-        #TODO: Add members
+        for member in members:
+            pass
 
         response = dict()
         response['dial_in'] = dial_in_number
@@ -78,7 +81,7 @@ def setup_conference():
 #
 
 @APP.route('/dscc', methods=['POST'])
-def handle_incoming_call():
+def handle_incoming_initiator_call():
     tropo_core = setup_tropo()
     tropo_request = TropoSession(request.data)
 
@@ -114,6 +117,7 @@ def connect_conference():
     if conference:
         tropo_core.say("PLease wait while we connect your other parties.")
         #Initiate Calls and send their redirects to appropriate handler
+        access_token = 'd5f6314d8f9e1804b9a00f83c9007247'
 
         for member in conference.members:
             tropo_core.call(to=member.number)
@@ -127,9 +131,31 @@ def connect_conference():
     response = tropo_core.RenderJson(pretty=True)
     return response
 
-@APP.route('/dscc/member_answer', methods=['POST'])
+@APP.route('/dscc/call_member', methods=['POST'])
 def handle_member():
-    pass
+    tropo_core = setup_tropo()
+    tropo_request = TropoSession(request.data)
+
+    session_data = dict()
+
+    session_data['id'] = tropo_request.id
+    session_data['callid'] = tropo_request.callId
+    session_data['from'] = tropo_request.fromaddress['id']
+    session_data['to'] = tropo_request.to['id']
+
+    tropo_core.say('Welcome to Dead Simple Conference Calling.')
+    tropo_core.on(event='continue', next=url_for('connect_conference'))
+    response = tropo_core.RenderJson(pretty=True)
+
+    session = models.TropoSession(tropo_session_id=tropo_request.id)
+    session.tropo_call_id = tropo_request.callId
+    session.from_number = tropo_request.fromaddress['id']
+
+    session.incoming_number = tropo_request.to['id']
+    session.initiator_session = True
+    session.save()
+
+    return response
 
 @APP.route('/dscc/error', methods=['POST'])
 def handle_error():
