@@ -8,6 +8,7 @@ from sqlalchemy import Column, ForeignKey, Integer, Text, Boolean, VARCHAR, Date
 from sqlalchemy import create_engine, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, relationship, backref, sessionmaker
+from sqlalchemy import desc
 
 import settings
 
@@ -126,11 +127,11 @@ class ConferenceCall(DeclarativeBase):
 
     @classmethod
     def get_current_call_for_initiator(cls, number):
-        return core_read(cls).join(ConferenceInitiator).filter(cls.end_time==None).filter(ConferenceInitiator.number==number).order_by(cls.updated).first()
+        return core_read(cls).join(ConferenceInitiator).filter(cls.end_time==None).filter(ConferenceInitiator.number==number).order_by(cls.updated.desc()).first()
 
     @classmethod
     def get_current_call_for_member(cls, number):
-        return core_read(cls).join(ConferenceMember).filter(cls.end_time==None).filter(ConferenceMember.number==number).order_by(cls.updated).first()
+        return core_read(cls).join(ConferenceMember).filter(cls.end_time==None).filter(ConferenceMember.number==number).order_by(cls.updated.desc()).first()
 
 def initialize_sql():
     print "Dropping metadata..."
