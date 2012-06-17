@@ -194,7 +194,7 @@ def member_answered():
     session = models.TropoSession.get_session_with_tropo_id(result._sessionId)
     conference = session.conference_call
 
-    tropo_core.say("Welcome to a dead simple conference call.  %s has initiated this call to you.", conference.initiator.name)
+    tropo_core.say("Welcome to a dead simple conference call. " +  conference.initiator.name + "has initiated this call to you.")
     tropo_core.ask(say='Press one to join the conference or two to decline.', choices=makeChoices('[1 DIGIT]'), attempts=2)
     tropo_core.on(event='continue', next=url_for('member_question'))
 
