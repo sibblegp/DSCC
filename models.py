@@ -47,12 +47,13 @@ class TropoSession(DeclarativeBase):
     #Columns
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     tropo_session_id = Column(VARCHAR(length=100), nullable=False)
-    tropo_call_id = Column(VARCHAR(length=100), nullable=False)
+    tropo_call_id = Column(VARCHAR(length=100))
     started = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
     ended = Column(DateTime)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
     initiator_session = Column(Boolean, nullable=False, default=False)
-    from_number = Column(VARCHAR(length=20))
+    member_number = Column(VARCHAR(length=20))
+
     #Foreign Keys
     conference_call_id = Column(Integer, ForeignKey('conference_calls.id'), nullable=True)
 
@@ -88,6 +89,10 @@ class ConferenceMember(DeclarativeBase):
     #Foreign Keys
     conference_call_id = Column(Integer, ForeignKey('conference_calls.id'), nullable=True)
 
+    def save(self):
+        core_add(self)
+        core_commit()
+
 class ConferenceCall(DeclarativeBase):
     __tablename__ = 'conference_calls'
 
@@ -120,8 +125,12 @@ class ConferenceCall(DeclarativeBase):
         core_commit()
 
     @classmethod
-    def get_current_call_for_number(cls, number):
-        return core_read(cls).join(ConferenceInitiator).filter(cls.end_time==None).filter(ConferenceInitiator.number==number).first()
+    def get_current_call_for_initiator(cls, number):
+        return core_read(cls).join(ConferenceInitiator).filter(cls.end_time==None).filter(ConferenceInitiator.number==number).order_by(cls.updated).first()
+
+    @classmethod
+    def get_current_call_for_member(cls, number):
+        return core_read(cls).join(ConferenceMember).filter(cls.end_time==None).filter(ConferenceMember.number==number).order_by(cls.updated).first()
 
 def initialize_sql():
     print "Dropping metadata..."
