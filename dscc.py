@@ -130,7 +130,7 @@ def handle_incoming_initiator_call():
             session.conference_call = conference
             session.save()
             tropo_core.call(to=session.member_number, allowSignals=True, _from=conference.initiator.number, timeout=90)
-            tropo_core.on(event="answer", next=url_for('member_answered'))
+            tropo_core.on(event="continue", next=url_for('member_answered'))
         else:
             APP.logger.debug('No active conference found for member: ' + session.member_number)
             tropo_core.hangup()
