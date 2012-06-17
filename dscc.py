@@ -161,7 +161,7 @@ def connect_conference():
             pass
 
         tropo_core.on(event='answer', next=url_for('handle_member'))
-        tropo_core.conference(id=conference.tropo_conference_id, name=str(conference.tropo_conference_id), allowSignals=True)
+        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True)
     else:
         tropo_core.say("We're sorry, but we cannot find an active conference call for your number.  Goodbye.")
         tropo_core.hangup()
@@ -213,7 +213,7 @@ def member_question():
 
     if selection == 1:
         tropo_core.say("Please wait while we join you to the conference")
-        tropo_core.conference(id=conference.tropo_conference_id, name=str(conference.tropo_conference_id), allowSignals=True)
+        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True)
         tropo_core.on(event='continue', next=url_for('member_joined'))
     elif selection == 2:
         tropo_core.say("Thank you.  Goodbye.")
