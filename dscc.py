@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request, url_for
 from tropo import Tropo
 from tropo import Result as TropoResult
 from tropo import Session as TropoSession
+from tropo import Choices as TropoChoices
 
 import datetime
 import json
