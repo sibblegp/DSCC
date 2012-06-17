@@ -128,6 +128,7 @@ def handle_incoming_initiator_call():
         conference = models.ConferenceCall.get_current_call_for_member(session.member_number)
 
         if conference:
+            APP.logger.debug('Adding member %s to call...', session.member_number)
             session.conference_call = conference
             session.save()
             tropo_core.call(to=session.member_number, allowSignals=True, _from=conference.initiator.number, timeout=90)
