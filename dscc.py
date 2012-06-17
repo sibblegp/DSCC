@@ -161,7 +161,7 @@ def connect_conference():
             pass
 
         tropo_core.on(event='answer', next=url_for('handle_member'))
-        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True, required=True)
+        tropo_core.conference(id=str(conference.tropo_conference_id), name=str(conference.tropo_conference_id), allowSignals=True, required=True1)
     else:
         tropo_core.say("We're sorry, but we cannot find an active conference call for your number.  Goodbye.")
         tropo_core.hangup()
@@ -195,7 +195,7 @@ def member_answered():
     session = models.TropoSession.get_session_with_tropo_id(result._sessionId)
     conference = session.conference_call
 
-    tropo_core.say("Welcome to a dead simple conference call. " +  conference.initiator.name + "has initiated this call to you.")
+    tropo_core.say("Hello and welcome to a simple conference call. " +  conference.initiator.name + "has initiated this call to you.")
     tropo_core.ask(say='Press one to join the conference or two to decline.', choices=makeChoices('[1 DIGIT]'), attempts=2)
     tropo_core.on(event='continue', next=url_for('member_question'))
 
@@ -226,6 +226,8 @@ def member_question():
 
 @APP.route('/dscc/member_joined', methods=['POST'])
 def member_joined():
+    APP.logger.debug('Member joined conference...')
+
     tropo_core.say("Welcome to the conference.  Enjoy.")
     response = tropo_core.RenderJson(pretty=True)
     return response
