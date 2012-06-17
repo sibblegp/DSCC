@@ -122,7 +122,7 @@ def handle_incoming_initiator_call():
     else:
         tropo_core.on(event='continue', next=url_for('call_member'))
         session = models.TropoSession(tropo_session_id=tropo_request.id)
-        session.member_number = tropo_request.parameters.member_number
+        session.member_number = tropo_request.parameters['member_number']
 
 
     response = tropo_core.RenderJson(pretty=True)
