@@ -79,6 +79,8 @@ def setup_conference():
         response['dial_in'] = dial_in_number
         response['conference_id'] = tropo_conference_id
 
+        APP.logger.debug('Created conference %i' % tropo_conference_id)
+
         return jsonify(response)
     else:
         return error('GET NOT PUSH!!  DUMBASS.')
@@ -112,6 +114,7 @@ def handle_incoming_initiator_call():
         #session_data['to'] = tropo_request.to['id']
 
     if initiator_call:
+        APP.logger.debug('Call identified for initiator %s' % tropo_request.fromaddress['id'])
         tropo_core.say('Hello and welcome to a Simple Conference Call.')
         tropo_core.on(event='continue', next=url_for('connect_conference'))
         session = models.TropoSession(tropo_session_id=tropo_request.id)
@@ -127,7 +130,7 @@ def handle_incoming_initiator_call():
         conference = models.ConferenceCall.get_current_call_for_member(session.member_number)
 
         if conference:
-            APP.logger.debug('Adding member %s to call...', session.member_number)
+            APP.logger.debug('Adding member %s to conference %s...' % session.member_number, conference.id)
             session.conference_call = conference
             session.save()
             tropo_core.call(to=session.member_number, allowSignals=True, _from=conference.initiator.number, timeout=90)
@@ -245,7 +248,7 @@ def handle_error():
 
 @APP.route('/dscc/hangup', methods=['POST'])
 def handle_hangup():
-    pass
+    return {}
 
 if __name__ == '__main__':
     APP.debug = True

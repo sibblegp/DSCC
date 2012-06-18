@@ -13,7 +13,7 @@ from sqlalchemy import desc
 import settings
 
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARN)
 
 DeclarativeBase = declarative_base()
 
