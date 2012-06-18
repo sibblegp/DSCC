@@ -154,6 +154,7 @@ def connect_conference():
     conference = models.ConferenceCall.get_current_call_for_initiator(session.member_number)
 
     if conference:
+        APP.logger.debug('Initiating conference %s with %s' % conference.id, session.member_number)
         session.conference_call = conference
         session.save()
         tropo_core.say("PLease wait while we connect your other parties.")
